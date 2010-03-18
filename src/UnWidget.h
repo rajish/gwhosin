@@ -20,7 +20,7 @@
 class UnWidget: public Gtk::Window
 {
 public:
-    UnWidget();
+    UnWidget(const Glib::ustring& iconpath);
 
 protected:
     void on_close(const Glib::ustring& action);

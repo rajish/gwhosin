@@ -1,5 +1,5 @@
 #ifdef HAVE_CONFIG_H
-#include "config.h"
+#include "../config.h"
 #endif
 
 #include <iostream>
@@ -17,15 +17,15 @@ const string utmp_fname = UTMP_FILE;
 
 
 
-UnWidget::UnWidget() : notification("", ""), wtmp_in(wtmp_fname.c_str(),  ios::in | ios::binary)
+UnWidget::UnWidget(const Glib::ustring& iconpath) : notification("", ""), wtmp_in(wtmp_fname.c_str(),  ios::in | ios::binary)
 {
     set_title("Logged users");
     set_border_width(5);
     set_default_size(600, 400);
 
     // System tray icon
-    pixbuf[0] = Gdk::Pixbuf::create_from_file("gtk-yes.png");
-    pixbuf[1] = Gdk::Pixbuf::create_from_file("gtk-no.png");
+    pixbuf[0] = Gdk::Pixbuf::create_from_file(iconpath + "green-light.png");
+    pixbuf[1] = Gdk::Pixbuf::create_from_file(iconpath + "red-light.png");
     status_icon = Gtk::StatusIcon::create(pixbuf[0]);
     status_icon->set_tooltip("Login sentinel");
     status_icon->signal_popup_menu().connect(sigc::mem_fun(*this, &UnWidget::on_popup_menu));
