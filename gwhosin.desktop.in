@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=gwhosin
+Exec=@prefix@/bin/gwhosin
+Icon=gwhosin.png
+Type=Application
+Categories=Application;System Tools;
+Comment=Logged-in users watcher
