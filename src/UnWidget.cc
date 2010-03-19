@@ -2,11 +2,14 @@
 #include "../config.h"
 #endif
 
+#include "defines.h"
+
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <exception>
 #include "UnWidget.h"
+#include "Dbg.h"
 
 using namespace std;
 using Glib::ustring;
@@ -51,11 +54,11 @@ UnWidget::UnWidget(const Glib::ustring& iconpath) : notification("", ""), wtmp_i
     }
     catch (const Glib::Error& ex)
     {
-        cout << "building menu failed: " << ex.what();
+        cerr << "building menu failed: " << ex.what();
     }
     popup_menu = dynamic_cast<Gtk::Menu*>(ui_manager->get_widget("/PopupMenu"));
     if(!popup_menu)
-        cout << "warning: menu not found" << endl;
+        cerr << "warning: menu not found" << endl;
 
     // notification popup
     notification.attach_to_widget(*this);
@@ -99,19 +102,19 @@ void UnWidget::on_wtmp_changed(const Glib::RefPtr<Gio::File>& file,
 
 void UnWidget::on_popup_menu(guint button, guint32 activate_time)
 {
-    cout << "UnWidget::on_popup_menu(" << button << ", " << activate_time << ")" << endl;
+    TRACEFN;
     popup_menu->popup(button, activate_time);
 }
 
 void UnWidget::on_icon_activate()
 {
-    cout << "UnWidget::on_icon_activate()" << endl;
+    TRACEFN;
     set_visible(!get_visible());
 }
 
 void UnWidget::on_menu_exit()
 {
-    cout << "UnWidget::on_menu_exit()" << endl;
+    TRACEFN;
     // TODO: There should be more elegant way to close the app
     exit(0);
 }
@@ -153,20 +156,22 @@ void UnWidget::update_icon()
 
 void UnWidget::dump_lists() const
 {
-    UsersMap::const_iterator it;
-    for (it = users_map.begin(); it != users_map.end(); it++)
-    {
-        cout << it->first << " ==> " << it->second.size() << endl;
-        for (UserEntries::iterator it1 = it->second.begin(); it1 != it->second.end(); it1++)
+    DBG(
+        UsersMap::const_iterator it;
+        for (it = users_map.begin(); it != users_map.end(); it++)
         {
-            cout << "\t" << it1->to_string() << endl;
+            cout << it->first << " ==> " << it->second.size() << endl;
+            for (UserEntries::iterator it1 = it->second.begin(); it1 != it->second.end(); it1++)
+            {
+                cout << "\t" << it1->to_string() << endl;
+            }
         }
-    }
-    for (LineEntries::const_iterator it2 = line_entries.begin(); it2 != line_entries.end(); it2++)
-    {
-        cout << it2->first << " => " << it2->second << endl;
-    }
-    cout << "================================================================================" << endl;
+        for (LineEntries::const_iterator it2 = line_entries.begin(); it2 != line_entries.end(); it2++)
+        {
+            cout << it2->first << " => " << it2->second << endl;
+        }
+        cout << "================================================================================" << endl;
+        );
 }
 
 void UnWidget::notify(bool log_in, const UtEntry& entry)
@@ -191,7 +196,7 @@ void UnWidget::notify(bool log_in, const UtEntry& entry)
     }
     catch (Glib::Error& err)
     {
-        cout << err.what() << endl;
+        cerr << err.what() << endl;
     }
 }
 
@@ -207,8 +212,8 @@ void UnWidget::check_entry(struct utmp& utmp_entry)
         uname = ut_entry.get_user();
         ret = users_map.insert(User(uname, UserEntries()));
         pair<UserEntries::iterator, bool> sret = ret.first->second.insert(ut_entry);    // it means: ret.iterator->UserEntries...
-        cout << (ret.second == true ? "new user '" : "append user '") << uname << "': " 
-             << (sret.second ? ut_entry.to_string() : lname + " already in set") << endl;
+        DBG( cout << (ret.second == true ? "new user '" : "append user '") << uname << "': " 
+            << (sret.second ? ut_entry.to_string() : lname + " already in set") << endl );
         line_entries.insert(LineEntry(lname, uname));
         tree_view.add_log_line(ut_entry);
         notify(true, ut_entry);
@@ -226,7 +231,7 @@ void UnWidget::check_entry(struct utmp& utmp_entry)
             if (it != uset.end())
             {
                 const UtEntry& entry = *it;
-                cout << "deleting: " << entry.to_string() << endl;
+                DBG(cout << "deleting: " << entry.to_string() << endl);
                 notify(false, ut_entry);
                 tree_view.add_log_line(ut_entry);
                 uset.erase(it);
@@ -235,7 +240,7 @@ void UnWidget::check_entry(struct utmp& utmp_entry)
             }
         }        
     }
-    cout << "not processed: " << ut_entry.to_string() << endl;
+    DBG(cout << "not processed: " << ut_entry.to_string() << endl);
 }
 
 void UnWidget::init_logins()
@@ -244,7 +249,7 @@ void UnWidget::init_logins()
     ifstream utmp(utmp_fname.c_str(), ios::in | ios::binary);
     if (!utmp.is_open())
     {
-        cout << "could not open " << utmp_fname << endl;
+        cerr << "could not open " << utmp_fname << endl;
         return;
     }
     struct utmp utmp_entry;
@@ -262,7 +267,5 @@ void UnWidget::init_logins()
     wtmp = Gio::File::create_for_path(wtmp_fname);
     monitor = wtmp->monitor_file();
     monitor->signal_changed().connect(sigc::mem_fun(*this, &UnWidget::on_wtmp_changed));
-
-
 }
 

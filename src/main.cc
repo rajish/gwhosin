@@ -9,7 +9,7 @@
 
 #include "defines.h"
 #include "UnWidget.h"
-
+#include "Dbg.h"
 
 
 using namespace std;
@@ -42,13 +42,10 @@ Glib::ustring& find_iconpath( Glib::ustring progname )
     if( stat( iconpath.c_str(), &filemode) != 0 ) 
         iconpath = Glib::get_current_dir() + (Glib::ustring)"/../img/";
 		
-
-#ifdef DEBUG
-    cout << "FIND_ICONPATH: " << iconpath << std::endl;
-#endif	
+    DBG(cout << "FIND_ICONPATH: " << iconpath << std::endl);
 
     if( stat( iconpath.c_str(), &filemode) != 0 )
-        cout << GT("Gwhosin img could not be found! This might cause a segfault.\n");
+        cerr << GT("Gwhosin img could not be found! This might cause a segfault.\n");
 
     return iconpath;
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include "LogView.h"
+#include "Dbg.h"
 
 using namespace std;
 using Glib::ustring;
@@ -46,7 +47,7 @@ LogView::LogView() :
 
 bool LogView::on_button_press_event(GdkEventButton* event)
 {
-    cout << "LogView::on_tree_button_press_event" << endl;
+    TRACEFN;
     bool return_value = false;
 
 #ifdef GLIBMM_DEFAULT_SIGNAL_HANDLERS_ENABLED
