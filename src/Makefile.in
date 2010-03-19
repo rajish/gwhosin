@@ -59,6 +59,10 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
+COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
+	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
+CCLD = $(CC)
+LINK = $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 SOURCES = $(gwhosin_SOURCES)
 DIST_SOURCES = $(gwhosin_SOURCES)
 ETAGS = etags
@@ -159,7 +163,9 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-gwhosin_SOURCES = main.cc UtEntry.cc LogView.cc UnWidget.cc
+gwhosin_SOURCES = main.cc UtEntry.cc LogView.cc UnWidget.cc \
+		 defines.h UtEntry.h LogView.h UnWidget.h
+
 gwhosin_LDADD = $(LIBNOTIFYMM_LIBS) $(GTKMM_LIBS)
 AM_CPPFLAGS = $(CFLAGS) $(LIBNOTIFYMM_CFLAGS) $(GTKMM_CFLAGS)
 all: all-am
