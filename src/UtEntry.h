@@ -20,15 +20,15 @@ public:
     bool is_dead_process() const { return (ut_type == DEAD_PROCESS); };
     bool is_user_process() const { return (ut_type == USER_PROCESS); };
 
-    std::string& get_user() const { return *(new std::string(ut_user)); }; 
+    std::string  get_user() const { return std::string(ut_user); };
     pid_t        get_pid() const { return ut_pid; };
-    std::string& get_line() const { return *(new std::string(ut_line)); };
+    std::string  get_line() const { return std::string(ut_line); };
     short int    get_type() const { return ut_type; };
 
-    std::string& to_string() const;
-    std::string& get_time_str(bool with_usec = true) const;
-    std::string& get_IP_str() const;
-    std::string& get_host() const { return *(new std::string(ut_host)); }
+    std::string  to_string() const;
+    std::string  get_time_str(bool with_usec = true) const;
+    std::string  get_IP_str() const;
+    std::string  get_host() const { return std::string(ut_host); }
 
 }; // class UtEntry
 

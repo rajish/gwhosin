@@ -18,13 +18,13 @@
 using namespace std;
 
 
-string& UtEntry::to_string() const
+string UtEntry::to_string() const
 {
     stringstream str;
     if (ut_type == EMPTY)
     {
         str << "Invalid entry";
-        return *( new string(str.str()) );
+        return str.str();
     }
     str << get_time_str(false) << "  ";
     str << "User '" << ut_user << "' ";
@@ -61,10 +61,10 @@ string& UtEntry::to_string() const
         str << "(" << get_IP_str() << ")";
     }
     str << " on " << ut_line;
-    return *( new string(str.str()) );
+    return str.str();
 }
 
-string& UtEntry::get_IP_str() const
+string UtEntry::get_IP_str() const
 {
     stringstream str;
     
@@ -80,10 +80,10 @@ string& UtEntry::get_IP_str() const
             str << inet_ntoa(addr);
         }
     }
-    return *( new string(str.str()) );
+    return str.str();
 }
 
-string& UtEntry::get_time_str(bool with_usec) const
+string UtEntry::get_time_str(bool with_usec) const
 {
     stringstream str;
     time_t time = ut_tv.tv_sec;
@@ -98,7 +98,7 @@ string& UtEntry::get_time_str(bool with_usec) const
             str << "." << setw(6) << ut_tv.tv_usec;
         }
     }
-    return *( new string(str.str()) );
+    return str.str();
 }
 
 int UtEntry::compare(const UtEntry& entry) const
