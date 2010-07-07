@@ -14,9 +14,6 @@ using Glib::ustring;
 LogView::LogView() :
     hide_ignored(true)
 {
-    // First things first
-    ignored_users.insert("LOGIN");
-
     tree_model = Gtk::ListStore::create(columns);
     tree_model_filter = Gtk::TreeModelFilter::create(tree_model, Gtk::TreeModel::Path());
     tree_model_filter->set_modify_func( columns_display, sigc::mem_fun(*this, &LogView::on_filter_modify) );
@@ -118,19 +115,9 @@ void LogView::on_filter_modify(const Gtk::TreeModel::iterator& iter, Glib::Value
     }
 }
 
-void LogView::ignore_user(const std::string& login)
-{
-    ignored_users.insert(login); 
-}
-
-bool LogView::is_ignored_user(const std::string login) const
-{
-    return (ignored_users.find(login) != ignored_users.end());
-}
-
 void LogView::add_log_line(const UtEntry& entry)
 {
-    if(!hide_ignored || !is_ignored_user(entry.get_user()))
+    if(!hide_ignored || !entry.is_ignored_user())
     {       
         Gtk::TreeModel::Row row = *(tree_model->append());
         row[columns.login]     = entry.get_user();

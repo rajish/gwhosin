@@ -4,7 +4,6 @@
 #define _LOGVIEW_H_
 
 #include <gtkmm.h>
-#include <set>
 #include "UtEntry.h"
 
 class LogView : public Gtk::TreeView
@@ -13,8 +12,6 @@ public:
     LogView();
     void set_hide_ignored(bool hide = true) { hide_ignored = hide; }
     bool get_hide_ignored() const { return hide_ignored; }
-    void ignore_user(const std::string& login); 
-    bool is_ignored_user(const std::string login) const;
     void add_log_line(const UtEntry& entry);
 
 protected:
@@ -76,9 +73,6 @@ protected:
     Glib::RefPtr<Gtk::ListStore> tree_model;
     Glib::RefPtr<Gtk::TreeModelFilter> tree_model_filter;
 
-    /** Keeps ignored users list */
-    typedef std::set<std::string> IgnoredUsers;
-    IgnoredUsers ignored_users;
     bool hide_ignored;
 };
 

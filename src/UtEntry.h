@@ -4,6 +4,8 @@
 #define _UTENTRY_H_
 
 #include <string>
+#include <set>
+
 #include <utmp.h>
 
 
@@ -30,6 +32,18 @@ public:
     std::string  get_IP_str() const;
     std::string  get_host() const { return std::string(ut_host); }
 
+    /** Keeps ignored users list */
+    typedef std::set<std::string> IgnoredUsers;
+    static IgnoredUsers ignored_users;
+    static int init_ignored_users() {
+        ignored_users.insert("LOGIN");
+    }
+    static void ignore_user(const std::string& login) { ignored_users.insert(login); }
+    static bool is_ignored_user(const std::string login)
+                     { return (ignored_users.find(login) != ignored_users.end()); }
+    bool is_ignored_user() const
+                     { return (ignored_users.find(ut_user) != ignored_users.end()); }
+
 }; // class UtEntry
 
 inline bool operator==(const UtEntry& lhe, const UtEntry& rhe)
@@ -49,5 +63,7 @@ struct UtComp {
             return lhe.compare(rhe) < 0;
         };
 };
+
+
 
 #endif  // _UTENTRY_H_

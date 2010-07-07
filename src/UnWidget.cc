@@ -124,7 +124,7 @@ void UnWidget::update_icon()
     int cnt_users = (int) users_map.size();
     for (UsersMap::iterator it = users_map.begin(); it != users_map.end(); it++)
     {
-        if (tree_view.is_ignored_user((*it).first))
+        if (UtEntry::is_ignored_user((*it).first))
         {
             cnt_users--;
         }
@@ -206,6 +206,11 @@ void UnWidget::check_entry(struct utmp& utmp_entry)
     pair<UsersMap::iterator, bool> ret;
     string lname = ut_entry.get_line();
     string uname;
+    if(ut_entry.is_ignored_user())
+    {
+        DBG(cout << "ignored user action: " << ut_entry.to_string() << endl);
+        return;
+    }
     
     if (ut_entry.is_login_process() || ut_entry.is_user_process())
     {

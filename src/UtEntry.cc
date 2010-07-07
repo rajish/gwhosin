@@ -17,7 +17,6 @@
 
 using namespace std;
 
-
 string UtEntry::to_string() const
 {
     stringstream str;
@@ -108,3 +107,5 @@ int UtEntry::compare(const UtEntry& entry) const
     return user.compare(entry.ut_line);
 }
 
+UtEntry::IgnoredUsers UtEntry::ignored_users;
+const int ignored_initialized = UtEntry::init_ignored_users();
