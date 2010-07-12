@@ -50,6 +50,7 @@ protected:
     typedef std::map<std::string, UserEntries> UsersMap;
     typedef std::pair<std::string, UserEntries> User;
     UsersMap users_map;
+    int non_ignored_user_cnt;
 
     
     std::ifstream wtmp_in;
@@ -57,6 +58,7 @@ protected:
     Glib::RefPtr<Gio::FileMonitor> monitor;
 
     Notify::Notification notification;
+    Glib::ustring iconpath;
     Glib::RefPtr<Gtk::StatusIcon> status_icon;
 
     // menu

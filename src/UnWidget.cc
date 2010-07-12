@@ -11,6 +11,9 @@
 #include "UnWidget.h"
 #include "Dbg.h"
 
+#include <cairomm/context.h>
+#include <cairomm/surface.h>
+
 using namespace std;
 using Glib::ustring;
 
@@ -20,12 +23,14 @@ const string utmp_fname = UTMP_FILE;
 
 
 
-UnWidget::UnWidget(const Glib::ustring& iconpath) : notification("", ""), wtmp_in(wtmp_fname.c_str(),  ios::in | ios::binary)
+UnWidget::UnWidget(const Glib::ustring& iconpath) :
+        notification("", ""), wtmp_in(wtmp_fname.c_str(),  ios::in | ios::binary),
+        non_ignored_user_cnt(0)
 {
     set_title("Logged users");
     set_border_width(5);
     set_default_size(600, 400);
-
+    this->iconpath = iconpath;
     // System tray icon
     pixbuf[0] = Gdk::Pixbuf::create_from_file(iconpath + "green-light.png");
     pixbuf[1] = Gdk::Pixbuf::create_from_file(iconpath + "red-light.png");
@@ -132,24 +137,66 @@ void UnWidget::update_icon()
     stringstream cnt_str;
     cnt_str << "Users logged in: " << cnt_users;
     status_icon->set_tooltip(cnt_str.str());
-    if(cnt_users > 0)
+    if(cnt_users > 0 && cnt_users != non_ignored_user_cnt)
     {
-        // int w = pixbuf[1]->get_width();
-        // int h = pixbuf[1]->get_height();
-        // Glib::RefPtr<Gdk::Drawable> drawable = Gdk::Drawable::create();
-        // Glib::RefPtr<Gdk::Pixmap> pixmap = Gdk::Pixmap::create( (Glib::RefPtr<Gdk::Drawable>) 0, w, h);
-        // pixmap->draw_pixbuf(pixbuf[1], 0, 0, 0, 0, -1, -1, Gdk::RGB_DITHER_NONE, 0, 0);
+        non_ignored_user_cnt = cnt_users;
+        Cairo::RefPtr<Cairo::ImageSurface> surface = Cairo::ImageSurface::create_from_png(iconpath + "red-light.png");
+        Cairo::RefPtr<Cairo::Context> cr = Cairo::Context::create(surface);
+        Cairo::RefPtr<Cairo::ToyFontFace> font =
+            Cairo::ToyFontFace::create("FreeSans",
+                                       Cairo::FONT_SLANT_NORMAL,
+                                       Cairo::FONT_WEIGHT_BOLD);
 
-        // Glib::RefPtr<Pango::Layout> pl = create_pango_layout(cnt_str.str());
-        // Glib::RefPtr<Gdk::GC> gc = Gdk::GC::create(pixmap);
-        // drawable->draw_layout(gc, 0, 0, pl);
-        
-        // Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create(Glib::RefPtr<Gdk::Drawable>::cast_static(pixmap), 0, 0, w, h);
-        // status_icon->set(icon);
-        status_icon->set(pixbuf[1]);
+        int w = surface->get_width();
+        int h = surface->get_height();
+        cnt_str.str("");
+        cnt_str << cnt_users;
+        cr->set_font_face(font);
+        cr->set_font_size(1.3 * h / 2);
+
+        Cairo::TextExtents te;
+        cr->get_text_extents(cnt_str.str(), te);
+
+        cr->set_source_rgba(0, 0, 0, 1.0);
+        cr->move_to((double)w/2 - te.x_bearing - te.width/2,
+                    (double)h/2 - te.y_bearing - te.height/2);
+        cr->show_text(cnt_str.str());
+
+        cr->set_source_rgb(1.0, 1.0, 0);
+//        cr->rel_move_to(-1.0, -1.0); // cairomm bug?
+        cr->move_to((double)w/2 - te.x_bearing - te.width/2 - 1,
+                    (double)h/2 - te.y_bearing - te.height/2 - 1);
+        cr->show_text(cnt_str.str());
+
+        Glib::RefPtr<Gdk::Pixbuf> icon = Gdk::Pixbuf::create(Gdk::COLORSPACE_RGB, true, 8, w, h);
+        int stride = surface->get_stride();
+        unsigned char *src = surface->get_data();
+        unsigned char *dst = icon->get_pixels();
+        for(int i = 0; i < h; ++i)
+        {
+            for(int j = 0; j < w; ++j)
+            {
+                if(src[3])
+                {
+                    // non-zero alpha
+                    dst[0] = src[2] * 255 / src[3];
+                    dst[1] = src[1] * 255 / src[3];
+                    dst[2] = src[0] * 255 / src[3];
+                }
+                else
+                    dst[0] = dst[1] = dst[2] = 0;
+                dst[3] = src[3];
+                src += 4;
+                dst += 4;
+            }
+            src += stride - w * 4;
+            dst += stride - w * 4;
+        }
+        status_icon->set(icon);
     }
-    else
+    else if(cnt_users <= 0)
     {
+        non_ignored_user_cnt = cnt_users;
         status_icon->set(pixbuf[0]);
     }
 }

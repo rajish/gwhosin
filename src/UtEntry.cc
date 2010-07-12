@@ -103,7 +103,6 @@ string UtEntry::get_time_str(bool with_usec) const
 int UtEntry::compare(const UtEntry& entry) const
 {
     string user(ut_line);
-    DBG(cout << "UtEntry::compare('" << user << "', '" << entry.ut_line << "') = " << user.compare(entry.ut_line) << endl);
     return user.compare(entry.ut_line);
 }
 
