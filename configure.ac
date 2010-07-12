@@ -16,6 +16,9 @@ AC_PROG_CC
 AC_ARG_ENABLE(debug,   [  --enable-debug          compile with debugging support],,enable_debug=no)
 if test "x$enable_debug" = "xyes" ; then
 	AC_DEFINE(DEBUG, 1, [Define if debugging is enabled.])
+        CFLAGS="-g -O0"
+else
+        CFLAGS="-O2"
 fi
 
 CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600"

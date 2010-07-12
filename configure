@@ -4078,6 +4078,9 @@ if test "x$enable_debug" = "xyes" ; then
 
 $as_echo "#define DEBUG 1" >>confdefs.h
 
+        CFLAGS="-g -O0"
+else
+        CFLAGS="-O2"
 fi
 
 CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600"
